@@ -35,7 +35,7 @@ class Player {
             int randomIndex = (int) Math.floor(Math.random() * (max - MIN + 1) + MIN);
             int cardDraw = cardsInDeck.get(randomIndex);
             cardsInDeck.remove(randomIndex);
-            message += cardsInDeck.size() + " Cards in deck.";
+            message = cardsInDeck.size() + " cards in deck.";
             max--;
             if (cardsInHand.size() < 5) {
                 cardsInHand.add(cardDraw);
@@ -43,7 +43,7 @@ class Player {
             } else {
                 message += "A card with a value of " + cardDraw + " drawn. OVERLOAD! Card discarded";
             }
-        } message += cardsInHand.size() + " Cards in hand.";
+        } message += cardsInHand.size() + " cards in hand.";
         System.out.println(message);
         return message;
     }
@@ -72,7 +72,7 @@ class Player {
                 totalDamage += cardValue;
                 mana -= cardValue;
                 cardsInHand.remove(index);
-                message = " throws a card with a value of " + cardValue;
+                message = "Plays a card with a value of " + cardValue;
             } else {
                 message = "PASS TURN";
                 break;
@@ -128,7 +128,8 @@ class Game {
         String message = "";
 
         for (int index = 0; index < 2; index++) {
-            System.out.println("Player " + index);
+            message = "Player " + index + " turn. ";
+            System.out.println(message);
             player[index].setupActivePlayer();
             if (index == 1) {
                 opponent = 0;
@@ -140,12 +141,12 @@ class Game {
             if (opponentNewHP < 1) {
                 opponentNewHP = 0;
                 gameContinues = false;
-                message += " damages " + opponent;
-                message += " Health drops from " + opponentHP + " to " + opponentNewHP;
+                message = "Player " + opponent + " health drops to 0! " + index + " WINS!!!";
+                System.out.println(message);
                 break;
             } else {
                 player[opponent].setHealth(opponentNewHP);
-                message += opponent + " gets damaged with " + damage + " points. Health drops from " + opponentHP + " to " + opponentNewHP;
+                message = "Player " + opponent + " gets damaged with " + damage + " points: Health drops from " + opponentHP + " to " + opponentNewHP;
             }
             System.out.println(message);
         }

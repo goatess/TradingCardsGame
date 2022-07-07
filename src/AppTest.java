@@ -80,7 +80,7 @@ public class AppTest {
     }
 
     @Test
-    public void  each_player_receives_3_cards_from_deck_(){
+    public void each_player_receives_3_cards_from_deck_(){
         
         //arrange
         final boolean EXPECTED_SAME_CARDS_IN_HAND = true;        
@@ -97,7 +97,7 @@ public class AppTest {
     }
 
     @Test 
-    public void player_gets_1_more_mana_slot_when_active(){
+    public void active_player_gets_1_more_mana_slot(){
         //arrange
         final int EXPECTED_MANA_SLOTS = 1;
         Game game = new Game();
