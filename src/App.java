@@ -13,43 +13,49 @@ class Player {
     int health = 30;
     int mana = 0;
     int manaSlots = 0;
-    int[] damageCards = { 0, 0, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 6, 6, 7, 8 };
-    List<Integer> cardsInDeck = new ArrayList<Integer>();
-    List<Integer> cardsInHand = new ArrayList<Integer>();
+    int[] cards = { 0, 0, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 6, 6, 7, 8, 0, 0, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 6, 6, 7, 8 };
+    int[] cardsDamage = { 0, 0, 0, 1, 2, 2, 3, 3, 4, 4, 5, 6, 6, 7, 8, 9, 10, 10, 11, 12 };
+    List<Integer> cardsDeck = new ArrayList<Integer>();
+    List<Integer> cardsHand = new ArrayList<Integer>();
 
-    void fillCardsInDeck() {
-        for (int i = 0; i < 20; i++) {
-            cardsInDeck.add(damageCards[i]);
+    void buildDeck() {
+        int max = 39;
+        for (int index = 0; index < 20; index++) {
+            int randomIndex = (int) Math.floor(Math.random() * (max - MIN + 1) + MIN);
+            cardsDeck.add(cards[randomIndex]);
+            max--;
         }
+        
     }
 
     final int MIN = 0;
+    
     int max = 19;
-
     String drawACard() {
         String message = "";
-        if (cardsInDeck.size() < 1) {
+        if (cardsDeck.size() < 1) {
             health--;
-            message = "No more cards in deck. BLEEDING OUT! HP-1 ";
+            message = "No more cards in deck. BLEEDING OUT! HP-1! ";
         } else {
             int randomIndex = (int) Math.floor(Math.random() * (max - MIN + 1) + MIN);
-            int cardDraw = cardsInDeck.get(randomIndex);
-            cardsInDeck.remove(randomIndex);
-            message = cardsInDeck.size() + " cards in deck.";
+            int cardDraw = cardsDeck.get(randomIndex);
+            cardsDeck.remove(randomIndex);
+            message = cardsDeck.size() + " cards in deck.";
             max--;
-            if (cardsInHand.size() < 5) {
-                cardsInHand.add(cardDraw);
-                message += "A card with a value of " + cardDraw + " drawn.";
+            if (cardsHand.size() < 5) {
+                cardsHand.add(cardDraw);
+                message += "A card with a value of " + cardDraw + " drawn. ";
             } else {
-                message += "A card with a value of " + cardDraw + " drawn. OVERLOAD! Card discarded";
+                message += "A card with a value of " + cardDraw + " drawn. OVERLOAD! Card discarded. ";
             }
-        } message += cardsInHand.size() + " cards in hand.";
+        }
+        message += cardsHand.size() + " cards in hand.";
         System.out.println(message);
         return message;
     }
 
     void initialSetupPlayer() {
-        fillCardsInDeck();
+        buildDeck();
         for (int i = 0; i < 3; i++) {
             drawACard();
         }
@@ -66,13 +72,17 @@ class Player {
     int playCards() {
         int totalDamage = 0;
         String message = "";
-        for (int index = 0; index < cardsInHand.size(); index++) {
-            int cardValue = cardsInHand.get(index);
+        for (int index = 0; index < cardsHand.size(); index++) {
+            int cardValue = cardsHand.get(index);
             if (mana >= cardValue) {
                 totalDamage += cardValue;
                 mana -= cardValue;
-                cardsInHand.remove(index);
+                cardsHand.remove(index);
                 message = "Plays a card with a value of " + cardValue;
+                if (cardValue == 1){
+                    health += 5;
+                    message += " HEALING CARD!";
+                }
             } else {
                 message = "PASS TURN";
                 break;
@@ -95,7 +105,7 @@ class Player {
     }
 
     public int getCardsInHand_size() {
-        int size = cardsInHand.size();
+        int size = cardsHand.size();
         return size;
     }
 
@@ -127,26 +137,27 @@ class Game {
         int opponentNewHP = 0;
         String message = "";
 
-        for (int index = 0; index < 2; index++) {
-            message = "Player " + index + " turn. ";
+        for (int active = 0; active < 2; active++) {
+            message = "Player " + active + " turn. ";
             System.out.println(message);
-            player[index].setupActivePlayer();
-            if (index == 1) {
+            player[active].setupActivePlayer();
+            if (active == 1) {
                 opponent = 0;
             } else
-            opponent = 1;
-            damage = player[index].playCards();
+                opponent = 1;
+            damage = player[active].playCards();
             opponentHP = player[opponent].getHealth();
             opponentNewHP = opponentHP - damage;
             if (opponentNewHP < 1) {
                 opponentNewHP = 0;
                 gameContinues = false;
-                message = "Player " + opponent + " health drops to 0! " + index + " WINS!!!";
+                message = "Player " + opponent + " health drops to 0! " + active + " WINS!!!";
                 System.out.println(message);
                 break;
             } else {
                 player[opponent].setHealth(opponentNewHP);
-                message = "Player " + opponent + " gets damaged with " + damage + " points: Health drops from " + opponentHP + " to " + opponentNewHP;
+                message = "Player " + opponent + " gets damaged with " + damage + " points: Health drops from "
+                        + opponentHP + " to " + opponentNewHP;
             }
             System.out.println(message);
         }
