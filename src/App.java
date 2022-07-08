@@ -4,45 +4,84 @@ import java.util.List;
 public class App {
     public static void main(String[] args) throws Exception {
         Game game = new Game();
-        game.addPlayers();
-        game.turn();
+        game.startPCvsPCGame();
     }
 }
 
-class Player {
-    int health = 30;
-    int mana = 0;
-    int manaSlots = 0;
-    int[] cards = { 0, 0, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 6, 6, 7, 8, 0, 0, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 6, 6, 7, 8 };
-    int[] cardsDamage = { 0, 0, 0, 1, 2, 2, 3, 3, 4, 4, 5, 6, 6, 7, 8, 9, 10, 10, 11, 12 };
+class Cards {
+    final int EMPTY_DECK = 0;
+    final int FULL_HAND = 5;
+    final int MIN_INDEX = 0;
+    int[] cards = { 0, 0, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 6, 6, 7, 8, 0, 0, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4,
+            4, 5, 5, 6, 6, 7, 8 };
+    int healingCardValue = 5;
     List<Integer> cardsDeck = new ArrayList<Integer>();
     List<Integer> cardsHand = new ArrayList<Integer>();
+    int maxIndex = 19;
+    // Damage independent from Mana cost
+    int[] cardsDamage = { 0, 0, 0, 1, 2, 2, 3, 3, 4, 4, 5, 6, 6, 7, 8, 9, 10, 10, 11, 12, 0, 0, 0, 1, 2, 2, 3, 3, 4, 4,
+            5, 6, 6, 7, 8, 9, 10, 10, 11, 12 };
 
     void buildDeck() {
         int max = 39;
         for (int index = 0; index < 20; index++) {
-            int randomIndex = (int) Math.floor(Math.random() * (max - MIN + 1) + MIN);
+            int randomIndex = (int) Math.floor(Math.random() * (max - MIN_INDEX + 1) + MIN_INDEX);
             cardsDeck.add(cards[randomIndex]);
             max--;
         }
-        
     }
 
-    final int MIN = 0;
-    
-    int max = 19;
-    String drawACard() {
+    public void clearDeck() {
+        this.maxIndex = 0;
+        cardsDeck.clear();
+    }
+}
+
+class Player {
+    final int EMPTY_DECK = 0;
+    final int FULL_HAND = 5;
+    final int MIN_INDEX = 0;
+    int health = 30;
+    int mana = 0;
+    int manaSlots = 0;
+    int[] cards = { 0, 0, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 6, 6, 7, 8, 0, 0, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4,
+            4, 5, 5, 6, 6, 7, 8 };
+    int healingCardValue = 5;
+    List<Integer> cardsDeck = new ArrayList<Integer>();
+    List<Integer> cardsHand = new ArrayList<Integer>();
+
+    int maxIndex = 19;
+
+    // Damage independent from Mana cost
+    int[] cardsDamage = { 0, 0, 0, 1, 2, 2, 3, 3, 4, 4, 5, 6, 6, 7, 8, 9, 10, 10, 11, 12, 0, 0, 0, 1, 2, 2, 3, 3, 4, 4,
+            5, 6, 6, 7, 8, 9, 10, 10, 11, 12 };
+
+    public void clearDeck() {
+        this.maxIndex = 0;
+        cardsDeck.clear();
+    }
+
+    void buildDeck() {
+        int max = 39;
+        for (int index = 0; index < 20; index++) {
+            int randomIndex = (int) Math.floor(Math.random() * (max - MIN_INDEX + 1) + MIN_INDEX);
+            cardsDeck.add(cards[randomIndex]);
+            max--;
+        }
+    }
+
+    String drawCard() {
         String message = "";
-        if (cardsDeck.size() < 1) {
+        if (cardsDeck.size() <= EMPTY_DECK) {
             health--;
             message = "No more cards in deck. BLEEDING OUT! HP-1! ";
         } else {
-            int randomIndex = (int) Math.floor(Math.random() * (max - MIN + 1) + MIN);
+            int randomIndex = (int) Math.floor(Math.random() * (maxIndex - MIN_INDEX + 1) + MIN_INDEX);
             int cardDraw = cardsDeck.get(randomIndex);
             cardsDeck.remove(randomIndex);
             message = cardsDeck.size() + " cards in deck.";
-            max--;
-            if (cardsHand.size() < 5) {
+            maxIndex--;
+            if (cardsHand.size() < FULL_HAND) {
                 cardsHand.add(cardDraw);
                 message += "A card with a value of " + cardDraw + " drawn. ";
             } else {
@@ -54,41 +93,48 @@ class Player {
         return message;
     }
 
-    void initialSetupPlayer() {
+    void buildDeckANdHand() {
         buildDeck();
         for (int i = 0; i < 3; i++) {
-            drawACard();
+            drawCard();
         }
     }
 
-    void setupActivePlayer() {
+    void prepareActivePlayer() {
         if (manaSlots < 10) {
             manaSlots += 1;
         }
         mana = manaSlots;
-        drawACard();
+        drawCard();
     }
-
-    int playCards() {
+    
+    int cardsPlayed = 0;
+    int cardsPassed = 0;
+    int playCardsinHand() {
         int totalDamage = 0;
         String message = "";
-        for (int index = 0; index < cardsHand.size(); index++) {
-            int cardValue = cardsHand.get(index);
-            if (mana >= cardValue) {
-                totalDamage += cardValue;
-                mana -= cardValue;
-                cardsHand.remove(index);
-                message = "Plays a card with a value of " + cardValue;
-                if (cardValue == 1){
-                    health += 5;
-                    message += " HEALING CARD!";
-                }
-            } else {
-                message = "PASS TURN";
-                break;
+
+        while ((cardsPassed + cardsPlayed) < (cardsHand.size())) {
+            for (int index = 0; index < cardsHand.size(); index++) {
+                int cardValue = cardsHand.get(index);
+                if (mana >= cardValue) {
+                    cardsPlayed++;
+                    cardsHand.remove(index);
+                    message = "Plays a card with a value of " + cardValue;
+                    mana -= cardValue;
+                    totalDamage += cardValue;
+                    if (cardValue == 1) {
+                        totalDamage -= cardValue;
+                        health += healingCardValue;
+                        message += " HEALING CARD!";
+                    }
+                } else cardsPassed++;
+                
+                System.out.println(message);
             }
-            System.out.println(message);
         }
+        message += " PASS";
+        System.out.println(message);
         return totalDamage;
     }
 
@@ -104,74 +150,103 @@ class Player {
         return manaSlots;
     }
 
-    public int getCardsInHand_size() {
+    public int getNumberOfCardsInHand() {
         int size = cardsHand.size();
         return size;
+    }
+
+    public String getCardsinHandValues() {
+        String values = "";
+        for (int index = 0; index < cardsHand.size(); index++) {
+            values += String.valueOf(cardsHand.get(index)) + ", ";
+        }
+        return values;
     }
 
     public int getMana() {
         return mana;
     }
 
+    public void setMana(int mana) {
+        this.mana = mana;
+    }
+    public int getCardsPlayed() {
+        return cardsPlayed;
+    }
+
 }
 
 class Game {
     Player[] player = new Player[2];
+    int numberOfPlayers = 2;
     boolean gameContinues = true;
-    int damage = 0;
+   // int damage = 0;
+    int winner = -1;
 
-    void addPlayers() {
-        for (int index = 0; index < 2; index++) {
-            player[index] = new Player();
-        }
-
-        for (int index = 0; index < 2; index++) {
-            player[index].initialSetupPlayer();
+    void startPCvsPCGame() {
+        createPlayers();
+        while (gameContinues) {
+            throwCardToOpponent();
         }
     }
 
-    String manageTurn() {
-        int damage = 0;
-        int opponent = 1;
-        int opponentHP = 0;
-        int opponentNewHP = 0;
+    public void gameLoop() {
+        while (gameContinues) {
+            throwCardToOpponent();
+        }
+    }
+
+    void createPlayers() {
+        for (int index = 0; index < numberOfPlayers; index++) {
+            player[index] = new Player();
+        }
+
+        for (int index = 0; index < numberOfPlayers; index++) {
+            player[index].buildDeckANdHand();
+        }
+    }
+
+    String throwCardToOpponent() {
+        int opponent = -1;
         String message = "";
 
         for (int active = 0; active < 2; active++) {
             message = "Player " + active + " turn. ";
             System.out.println(message);
-            player[active].setupActivePlayer();
+            player[active].prepareActivePlayer();
             if (active == 1) {
                 opponent = 0;
             } else
                 opponent = 1;
-            damage = player[active].playCards();
-            opponentHP = player[opponent].getHealth();
-            opponentNewHP = opponentHP - damage;
-            if (opponentNewHP < 1) {
-                opponentNewHP = 0;
+            int damage = player[active].playCardsinHand();
+            int opponentHealth = player[opponent].getHealth();
+            int opponentNewHealth = opponentHealth - damage;
+            if (opponentNewHealth < 1) {
+                opponentNewHealth = 0;
                 gameContinues = false;
-                message = "Player " + opponent + " health drops to 0! " + active + " WINS!!!";
+                message = "Player " + opponent + " health drops to 0! Player " + active + " WINS!!!";
+                winner = active;
                 System.out.println(message);
                 break;
             } else {
-                player[opponent].setHealth(opponentNewHP);
+                player[opponent].setHealth(opponentNewHealth);
                 message = "Player " + opponent + " gets damaged with " + damage + " points: Health drops from "
-                        + opponentHP + " to " + opponentNewHP;
+                        + opponentHealth + " to " + opponentNewHealth;
             }
             System.out.println(message);
         }
         return message;
     }
 
-    void turn() {
-        while (gameContinues) {
-            manageTurn();
-        }
+   // public void setDamage(int damage) {
+   //     this.damage = damage;
+   // }
 
+    public int getWinner() {
+        return winner;
     }
 
-    void setDamage(int damage) {
-        this.damage = damage;
+    public void setNumberOfPlayers(int numberOfPlayers) {
+        this.numberOfPlayers = numberOfPlayers;
     }
 }
