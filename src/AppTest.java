@@ -87,7 +87,7 @@ public class AppTest {
 
         // act
         game.createPlayers();
-        game.throwCardToOpponent();
+        game.manageTurns();
         int actualManaSlots = game.player[0].getManaSlots();
 
         // assert
@@ -102,7 +102,7 @@ public class AppTest {
 
         // act
         game.createPlayers();
-        game.throwCardToOpponent();
+        game.manageTurns();
         game.player[0].prepareActivePlayer();
         int actualMana = game.player[0].getMana();
 
@@ -159,7 +159,7 @@ public class AppTest {
         game.player[1] = new Player();
         game.player[0].cardsHand.add(0, 2);
         game.player[0].setMana(2);
-        game.throwCardToOpponent();
+        game.manageTurns();
         int actualOppHealth = game.player[1].getHealth();
 
         //assert
@@ -180,7 +180,7 @@ public class AppTest {
         game.player[0].cardsHand.add(0, 2);
         game.player[0].setMana(2);
         int mana = game.player[0].getMana();
-        game.throwCardToOpponent();
+        game.manageTurns();
         int actualDamage = OppHealth - game.player[1].getHealth();
         int actualMana = mana - game.player[0].getMana();
 
@@ -239,31 +239,38 @@ public class AppTest {
     @Test
     public void card_is_discarded_if_hand_size_becomes_more_than_5(){
         //arrange
-        final
+        final int EXPECTED_CARDS_IN_HAND = 5;
         Game game = new Game();
 
         //act
         game.createPlayers();
-        game.throwCardToOpponent();
+        game.player[0].cardsHand.add(0, 2);
+        game.player[0].cardsHand.add(0, 2);
+        game.manageTurns();
+        int actualCardsInHand = game.player[0].getNumberOfCardsInHand();
         
 
         //assert
-        assertEquals(true, true);
+        assertEquals(EXPECTED_CARDS_IN_HAND, actualCardsInHand);
     }
 
     @Test
-    public void increased_difficulty_healing_cards_add_5_health_when_played(){
+    public void healing_cards_add_5_health_when_played(){
         //arrange
-        final
+        final int EXPECTED_HEALTH = 30;
         Game game = new Game();
 
         //act
         game.createPlayers();
-        game.throwCardToOpponent();
+        game.player[0].setHealth(25);
+        game.player[0].clearHand();
+        game.player[0].cardsHand.add(0, 1);
+        game.manageTurns();
+        int actualHealth = game.player[0].getHealth();
         
 
         //assert
-        assertEquals(true, true);
+        assertEquals(EXPECTED_HEALTH , actualHealth);
     }
 
     @Test
@@ -274,7 +281,7 @@ public class AppTest {
 
         //act
         game.createPlayers();
-        game.throwCardToOpponent();
+        game.manageTurns();
         
 
         //assert
@@ -284,15 +291,14 @@ public class AppTest {
     @Test
     public void can_be_obtained_an_entire_gameplay_with_computer_players(){
         //arrange
-        final
+        final String EXPECTED_MESSAGE = "PC vs PC game has succssessfully finished";
         Game game = new Game();
 
         //act
-        game.createPlayers();
-        game.throwCardToOpponent();
+        String actualMessage = game.startPCvsPCGame();
         
 
         //assert
-        assertEquals(true , true);
+        assertEquals(EXPECTED_MESSAGE , actualMessage);
     }
 }

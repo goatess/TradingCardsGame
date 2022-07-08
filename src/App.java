@@ -61,6 +61,10 @@ class Player {
         cardsDeck.clear();
     }
 
+    public void clearHand(){
+        cardsHand.clear();;
+    }
+
     void buildDeck() {
         int max = 39;
         for (int index = 0; index < 20; index++) {
@@ -111,7 +115,7 @@ class Player {
     int cardsPlayed = 0;
     int cardsPassed = 0;
     int playCardsinHand() {
-        int totalDamage = 0;
+        int turnDamage = 0;
         String message = "";
 
         while ((cardsPassed + cardsPlayed) < (cardsHand.size())) {
@@ -122,9 +126,9 @@ class Player {
                     cardsHand.remove(index);
                     message = "Plays a card with a value of " + cardValue;
                     mana -= cardValue;
-                    totalDamage += cardValue;
+                    turnDamage += cardValue;
                     if (cardValue == 1) {
-                        totalDamage -= cardValue;
+                        turnDamage -= cardValue;
                         health += healingCardValue;
                         message += " HEALING CARD!";
                     }
@@ -135,7 +139,7 @@ class Player {
         }
         message += " PASS";
         System.out.println(message);
-        return totalDamage;
+        return turnDamage;
     }
 
     public int getHealth() {
@@ -180,19 +184,20 @@ class Game {
     Player[] player = new Player[2];
     int numberOfPlayers = 2;
     boolean gameContinues = true;
-   // int damage = 0;
     int winner = -1;
 
-    void startPCvsPCGame() {
+    String startPCvsPCGame() {
         createPlayers();
         while (gameContinues) {
-            throwCardToOpponent();
+            manageTurns();
         }
+        String message = "PC vs PC game has succssessfully finished";
+        return message;
     }
 
     public void gameLoop() {
         while (gameContinues) {
-            throwCardToOpponent();
+            manageTurns();
         }
     }
 
@@ -206,7 +211,7 @@ class Game {
         }
     }
 
-    String throwCardToOpponent() {
+    String manageTurns() {
         int opponent = -1;
         String message = "";
 
