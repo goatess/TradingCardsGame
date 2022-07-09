@@ -13,96 +13,74 @@ class Cards {
     final int FULL_HAND = 5;
     final int MIN_INDEX = 0;
     int[] cards = { 0, 0, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 6, 6, 7, 8, 0, 0, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4,
-            4, 5, 5, 6, 6, 7, 8 };
-    int healingCardValue = 5;
-    List<Integer> cardsDeck = new ArrayList<Integer>();
-    List<Integer> cardsHand = new ArrayList<Integer>();
+        4, 5, 5, 6, 6, 7, 8 };
+        int healingCardValue = 5;
+    List<Integer> deck = new ArrayList<Integer>();
+    List<Integer> hand = new ArrayList<Integer>();
     int maxIndex = 19;
     // Damage independent from Mana cost
     int[] cardsDamage = { 0, 0, 0, 1, 2, 2, 3, 3, 4, 4, 5, 6, 6, 7, 8, 9, 10, 10, 11, 12, 0, 0, 0, 1, 2, 2, 3, 3, 4, 4,
             5, 6, 6, 7, 8, 9, 10, 10, 11, 12 };
 
-    void buildDeck() {
+            void buildDeck() {
         int max = 39;
         for (int index = 0; index < 20; index++) {
             int randomIndex = (int) Math.floor(Math.random() * (max - MIN_INDEX + 1) + MIN_INDEX);
-            cardsDeck.add(cards[randomIndex]);
+            deck.add(cards[randomIndex]);
             max--;
         }
     }
-
+    
     void clearDeck() {
         this.maxIndex = 0;
-        cardsDeck.clear();
+        deck.clear();
     }
 
     void clearHand() {
-        cardsHand.clear();
+        hand.clear();
+    }
+    public int getMaxIndex() {
+        return maxIndex;
+    }
+    public void setMaxIndex(int maxIndex) {
+        this.maxIndex = maxIndex;
+    }
+    public int getHealingCardValue() {
+        return healingCardValue;
     }
 }
-
+ 
 class Player {
-    final int EMPTY_DECK = 0;
-    final int FULL_HAND = 5;
-    final int MIN_INDEX = 0;
     int health = 30;
     int mana = 0;
     int manaSlots = 0;
-    int[] cards = { 0, 0, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 6, 6, 7, 8, 0, 0, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4,
-            4, 5, 5, 6, 6, 7, 8 };
-    int healingCardValue = 5;
-    List<Integer> cardsDeck = new ArrayList<Integer>();
-    List<Integer> cardsHand = new ArrayList<Integer>();
-
-    int maxIndex = 19;
-
-    // Damage independent from Mana cost
-    int[] cardsDamage = { 0, 0, 0, 1, 2, 2, 3, 3, 4, 4, 5, 6, 6, 7, 8, 9, 10, 10, 11, 12, 0, 0, 0, 1, 2, 2, 3, 3, 4, 4,
-            5, 6, 6, 7, 8, 9, 10, 10, 11, 12 };
-
-    public void clearDeck() {
-        this.maxIndex = 0;
-        cardsDeck.clear();
-    }
-
-    public void clearHand() {
-        cardsHand.clear();
-    }
-
-    void buildDeck() {
-        int max = 39;
-        for (int index = 0; index < 20; index++) {
-            int randomIndex = (int) Math.floor(Math.random() * (max - MIN_INDEX + 1) + MIN_INDEX);
-            cardsDeck.add(cards[randomIndex]);
-            max--;
-        }
-    }
-
+    Cards cards = new Cards();
+    
     String drawCard() {
         String message = "";
-        if (cardsDeck.size() <= EMPTY_DECK) {
+        if (cards.deck.size() <= 0) {
             health--;
             message = "No more cards in deck. BLEEDING OUT! HP-1! ";
         } else {
-            int randomIndex = (int) Math.floor(Math.random() * (maxIndex - MIN_INDEX + 1) + MIN_INDEX);
-            int cardDraw = cardsDeck.get(randomIndex);
-            cardsDeck.remove(randomIndex);
-            message = cardsDeck.size() + " cards in deck.";
-            maxIndex--;
-            if (cardsHand.size() < FULL_HAND) {
-                cardsHand.add(cardDraw);
+            int randomIndex = (int) Math.floor(Math.random() * (cards.getMaxIndex() + 1));
+            int cardDraw = cards.deck.get(randomIndex);
+            cards.deck.remove(randomIndex);
+            message = cards.deck.size() + " cards in deck.";
+            cards.setMaxIndex(cards.getMaxIndex()-1);
+            if (cards.hand.size() < 5) {
+                cards.hand.add(cardDraw);
                 message += "A card with a value of " + cardDraw + " drawn. ";
             } else {
                 message += "A card with a value of " + cardDraw + " drawn. OVERLOAD! Card discarded. ";
             }
         }
-        message += cardsHand.size() + " cards in hand.";
+        message += cards.hand.size() + " cards in hand.";
         System.out.println(message);
         return message;
     }
 
     void buildDeckANdHand() {
-        buildDeck();
+        cards.buildDeck();
         for (int i = 0; i < 3; i++) {
             drawCard();
         }
@@ -125,24 +103,24 @@ class Player {
 
     int playCards() {
         message = "";
-        while ((cardsPassed + cardsPlayed) < (cardsHand.size()) && turnPassed == false) {
+        while ((cardsPassed + cardsPlayed) < (cards.hand.size()) && turnPassed == false) {
             if(mana < 1){
                 turnPassed = true;
                 break;
 
             }
-            for (int index = 0; index < cardsHand.size(); index++) {
-                int cardValue = cardsHand.get(index);
+            for (int index = 0; index < cards.hand.size(); index++) {
+                int cardValue = cards.hand.get(index);
                 
                 if (mana >= cardValue) {
                     cardsPlayed++;
-                    cardsHand.remove(index);
+                    cards.hand.remove(index);
                     message = "Plays a card with a value of " + cardValue;
                     mana -= cardValue;
                     turnDamage += cardValue;
                     if (cardValue == 1) {
                         turnDamage -= cardValue;
-                        health += healingCardValue;
+                        health += cards.getHealingCardValue();
                         message += " HEALING CARD!";
                     }
                 } else
@@ -172,14 +150,14 @@ class Player {
     }
 
     public int getNumberOfCardsInHand() {
-        int size = cardsHand.size();
+        int size = cards.hand.size();
         return size;
     }
 
     public String getCardsinHandValues() {
         String values = "";
-        for (int index = 0; index < cardsHand.size(); index++) {
-            values += String.valueOf(cardsHand.get(index)) + ", ";
+        for (int index = 0; index < cards.hand.size(); index++) {
+            values += String.valueOf(cards.hand.get(index)) + ", ";
         }
         return values;
     }
