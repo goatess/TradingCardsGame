@@ -31,9 +31,13 @@ class Cards {
         }
     }
 
-    public void clearDeck() {
+    void clearDeck() {
         this.maxIndex = 0;
         cardsDeck.clear();
+    }
+
+    void clearHand() {
+        cardsHand.clear();
     }
 }
 
@@ -61,8 +65,8 @@ class Player {
         cardsDeck.clear();
     }
 
-    public void clearHand(){
-        cardsHand.clear();;
+    public void clearHand() {
+        cardsHand.clear();
     }
 
     void buildDeck() {
@@ -111,16 +115,25 @@ class Player {
         mana = manaSlots;
         drawCard();
     }
-    
+
     int cardsPlayed = 0;
     int cardsPassed = 0;
-    int playCardsinHand() {
-        int turnDamage = 0;
-        String message = "";
+    int turnDamage = 0;
+    boolean turnPassed = false;
+ 
+    String message = "";
 
-        while ((cardsPassed + cardsPlayed) < (cardsHand.size())) {
+    int playCards() {
+        message = "";
+        while ((cardsPassed + cardsPlayed) < (cardsHand.size()) && turnPassed == false) {
+            if(mana < 1){
+                turnPassed = true;
+                break;
+
+            }
             for (int index = 0; index < cardsHand.size(); index++) {
                 int cardValue = cardsHand.get(index);
+                
                 if (mana >= cardValue) {
                     cardsPlayed++;
                     cardsHand.remove(index);
@@ -132,12 +145,16 @@ class Player {
                         health += healingCardValue;
                         message += " HEALING CARD!";
                     }
-                } else cardsPassed++;
-                
+                } else
+                    cardsPassed++;
+
                 System.out.println(message);
             }
         }
-        message += " PASS";
+        if (turnPassed == true) {
+            message += " PASS";
+        }
+        turnPassed = true;
         System.out.println(message);
         return turnDamage;
     }
@@ -174,10 +191,30 @@ class Player {
     public void setMana(int mana) {
         this.mana = mana;
     }
+
     public int getCardsPlayed() {
         return cardsPlayed;
     }
 
+    public String getPlayCardMessage() {
+        return message;
+    }
+
+    public int getTurnDamage() {
+        return turnDamage;
+    }
+
+    public boolean getTurnPassed() {
+        return turnPassed;
+    }
+
+    public void setTurnPassed(boolean turnPassed) {
+        this.turnPassed = turnPassed;
+    }
+
+    public void setManaSlots(int manaSlots) {
+        this.manaSlots = manaSlots;
+    }
 }
 
 class Game {
@@ -189,7 +226,7 @@ class Game {
     String startPCvsPCGame() {
         createPlayers();
         while (gameContinues) {
-            manageTurns();
+            manageRound();
         }
         String message = "PC vs PC game has succssessfully finished";
         return message;
@@ -197,7 +234,7 @@ class Game {
 
     public void gameLoop() {
         while (gameContinues) {
-            manageTurns();
+            manageRound();
         }
     }
 
@@ -211,11 +248,11 @@ class Game {
         }
     }
 
-    String manageTurns() {
+    String manageRound() {
         int opponent = -1;
         String message = "";
 
-        for (int active = 0; active < 2; active++) {
+        for (int active = 0; active < numberOfPlayers; active++) {
             message = "Player " + active + " turn. ";
             System.out.println(message);
             player[active].prepareActivePlayer();
@@ -223,7 +260,11 @@ class Game {
                 opponent = 0;
             } else
                 opponent = 1;
-            int damage = player[active].playCardsinHand();
+            int damage = player[active].playCards();
+            boolean turnPassed = player[active].getTurnPassed();
+            if (turnPassed) {
+                
+            }
             int opponentHealth = player[opponent].getHealth();
             int opponentNewHealth = opponentHealth - damage;
             if (opponentNewHealth < 1) {
@@ -242,10 +283,6 @@ class Game {
         }
         return message;
     }
-
-   // public void setDamage(int damage) {
-   //     this.damage = damage;
-   // }
 
     public int getWinner() {
         return winner;
