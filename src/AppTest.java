@@ -118,10 +118,10 @@ public class AppTest {
 
         // act
         game.createPlayers();
-        game.player[0].clearHand();
-        game.player[0].cardsHand.add(0, 2);
-        game.player[0].cardsHand.add(1, 2);
-        game.player[0].cardsHand.add(2, 2);
+        game.player[0].cards.clearHand();
+        game.player[0].cards.hand.add(0, 2);
+        game.player[0].cards.hand.add(1, 2);
+        game.player[0].cards.hand.add(2, 2);
         game.player[0].setMana(6);
         game.player[0].playCards();
         int actualCardsInHand = game.player[0].getNumberOfCardsInHand();
@@ -139,8 +139,8 @@ public class AppTest {
 
         // act
         game.player[0] = new Player();
-        game.player[0].cardsHand.add(0, 2);
-        game.player[0].cardsHand.add(0, 2);
+        game.player[0].cards.hand.add(0, 2);
+        game.player[0].cards.hand.add(0, 2);
         game.player[0].setMana(4);
 
         game.player[0].playCards();
@@ -159,10 +159,10 @@ public class AppTest {
 
         // act
         game.createPlayers();
-        game.player[0].clearDeck();
-        game.player[0].clearHand();
-        game.player[0].cardsHand.add(0, 2);
-        game.player[0].cardsHand.add(0, 2);
+        game.player[0].cards.clearDeck();
+        game.player[0].cards.clearHand();
+        game.player[0].cards.hand.add(0, 2);
+        game.player[0].cards.hand.add(0, 2);
         game.player[0].setMana(1);
         game.player[1].setTurnPassed(true);
         game.manageRound();
@@ -183,7 +183,7 @@ public class AppTest {
         game.player[0] = new Player();
         game.player[1] = new Player();
         int OppHealth = game.player[1].getHealth();
-        game.player[0].cardsHand.add(0, 2);
+        game.player[0].cards.hand.add(0, 2);
         game.player[0].setMana(2);
         int mana = game.player[0].getMana();
         game.manageRound();
@@ -238,8 +238,8 @@ public class AppTest {
 
         // act
         game.createPlayers();
-        game.player[0].cardsHand.clear();
-        game.player[0].cardsDeck.clear();
+        game.player[0].cards.hand.clear();
+        game.player[0].cards.deck.clear();
         game.manageRound();
         boolean actualTurnPassed = game.player[0].getTurnPassed();
 
@@ -289,7 +289,7 @@ public class AppTest {
 
         // act
         game.createPlayers();
-        game.player[0].clearDeck();
+        game.player[0].cards.clearDeck();
         game.player[0].drawCard();
         int actualHealth = game.player[0].getHealth();
 
@@ -305,8 +305,8 @@ public class AppTest {
 
         // act
         game.createPlayers();
-        game.player[0].cardsHand.add(0, 2);
-        game.player[0].cardsHand.add(0, 2);
+        game.player[0].cards.hand.add(0, 2);
+        game.player[0].cards.hand.add(0, 2);
         game.player[0].drawCard();
         int actualCardsInHand = game.player[0].getNumberOfCardsInHand();
 
@@ -323,8 +323,8 @@ public class AppTest {
         // act
         game.createPlayers();
         game.player[0].setHealth(25);
-        game.player[0].clearHand();
-        game.player[0].cardsHand.add(0, 1);
+        game.player[0].cards.clearHand();
+        game.player[0].cards.hand.add(0, 1);
         game.manageRound();
         int actualHealth = game.player[0].getHealth();
 
@@ -340,9 +340,9 @@ public class AppTest {
 
         // act
         game.createPlayers();
-        game.player[0].clearDeck();
-        game.player[0].buildDeck();
-        int actualDeck = game.player[0].cardsDeck.size();
+        game.player[0].cards.clearDeck();
+        game.player[0].cards.buildDeck();
+        int actualDeck = game.player[0].cards.deck.size();
 
         // assert
         assertEquals(EXPECTED_DECK, actualDeck);
