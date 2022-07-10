@@ -120,14 +120,12 @@ public class AppTest {
 
         // act
         game.createPlayers();
-        game.player[0].clearHand();
-        game.player[0].hand.add(new Card(2));
-        game.player[0].hand.add(new Card(2));
-        game.player[0].hand.add(new Card(2));
-        game.player[0].setManaSlots(6);  
         game.player[0].setMana(6);
+        game.player[0].clearHand();
+        game.player[0].hand.add(new Card(2));  
+        game.player[0].hand.add(new Card(2));  
+        game.player[0].hand.add(new Card(2));  
         game.player[0].playCardsLoop();      
-
         actualCardsInHand = game.player[0].hand.size();
 
         // assert
@@ -192,10 +190,10 @@ public class AppTest {
         game.createPlayers();
         game.player[0].clearDeck();
         game.player[0].clearHand();
-        game.player[0].hand.add(new Card(2));
         game.player[0].setManaSlots(2);
         game.player[0].setMana(2);
         mana = game.player[0].getMana();
+        game.player[0].hand.add(new Card(2));
         game.manageRound();
         actualDamage = game.player[0].getDamage();
         actualMana = (game.player[0].getMana() - 1) + mana;

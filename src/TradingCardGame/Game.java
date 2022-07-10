@@ -27,16 +27,15 @@ public class Game {
         }
     }
 
-    int damage = 0;
-    int playerI = 0;
-
     String manageRound(){
+        int damage = 0;
+        int playerI = 0;
         Player opponent = player[1];
         boolean turnPassed = false;
         int oppOldHealth = 0;
         int oppHealth = 0;
         for (playerI = 0; playerI < numberOfPlayers; playerI++) {
-            message = "Player's " + playerI + " turn. ";
+            message = "\nPlayer's " + playerI + " turn. ";
             System.out.println(message);
 
             opponent = player[Math.abs(playerI - 1)];
@@ -47,10 +46,9 @@ public class Game {
             if (turnPassed) {
                 message = "Player " + playerI + " passes the turn to player " + opponentI;
             } else {
-
-                oppHealth = opponent.getHealth() - damage;
+                oppOldHealth = opponent.getHealth();
+                oppHealth =  oppOldHealth - damage;
                 opponent.setHealth(oppHealth);
-
                 if (oppHealth < 1) {
                     oppHealth = 0;
                     gameContinues = false;

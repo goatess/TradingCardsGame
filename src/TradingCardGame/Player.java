@@ -10,22 +10,21 @@ public class Player {
     int manaSlots = 0;
     int maxDeckCards = 20;
     int turnDamage = 0;
+    String message = "";
+    boolean turnPassed = false;
     List<Card> deck = new ArrayList<>();
     List<Card> hand = new ArrayList<>();
     List<Card> handTemp = new ArrayList<>();
-    String message = "";
-    boolean turnPassed = false;
-
-    void fillDeck() {
-
-        for (int i = 0; i < maxDeckCards; i++) {
-            deck.add(new Card());
-        }
-    }
 
     Player() {
         fillDeck();
         fillHand();
+    }
+ 
+    void fillDeck() {
+        for (int i = 0; i < maxDeckCards; i++) {
+            deck.add(new Card());
+        }
     }
 
     void sortHand(List<Card> hand) {
@@ -37,33 +36,6 @@ public class Player {
 
     void clearHand() {
         hand.clear();
-    }
-
-    Card takeRandomCard(List<Card> cards) {
-        int randomIndex = (int) Math.floor(Math.random() * (cards.size()));
-        Card card = cards.get(randomIndex);
-        cards.remove(randomIndex);
-        return card;
-    }
-
-    void drawCard() { // put one card from deck to hand
-        String message = "";
-
-        if (deck.size() <= 0) {
-            health--;
-            message = "No more cards in deck. BLEEDING OUT! HP-1! ";
-        } else {
-            Card cardDraw = takeRandomCard(deck);
-            if (hand.size() < MAX_CARDS_IN_HAND) {
-                hand.add(cardDraw);
-                message += "A card with a value of " + cardDraw.value + " drawn. ";
-            } else {
-                message += "A card with a value of " + cardDraw.value + " drawn. OVERLOAD! Card discarded. ";
-            }
-        }
-        message = deck.size() + " cards in deck. ";
-        message += hand.size() + " cards in hand.";
-        System.out.println(message);
     }
 
     void fillHand() {
@@ -94,31 +66,42 @@ public class Player {
         return turnDamage;
     }
 
-    int playCardsLoop() {
-        int turnDamage = 0;
-        int cardDamage = 0;
-        if (mana == 0 || turnPassed || hand.size() == 0) {
-            if (turnPassed == true) {
-                message += " PASS";
-                System.out.println(message);
-            }
-            turnPassed = true;
-        } else {
-            for (int i = 0; i < hand.size(); i++) {
-                Card cardInUse = hand.get(i);
-                // getLowestCostCard();
-                cardDamage = playCard(cardInUse);
-                turnDamage += cardDamage;
-            }
-        }
-        deleteCardsUsed();
-        handTemp.clear();
-        return turnDamage;
-    }
-
     Card getLowestCostCard() {
         sortHand(hand);
         return hand.get(0);
+    }
+
+    void deleteCardsPlayed() {
+        for (int i = 0; i < handTemp.size(); i++) {
+            if (hand.contains(handTemp.get(i))) {
+                hand.remove(handTemp.get(i));
+            }
+        }
+    }
+
+    Card takeRandomCard(List<Card> cards) {
+        int randomIndex = (int) Math.floor(Math.random() * (cards.size()));
+        Card card = cards.get(randomIndex);
+        cards.remove(randomIndex);
+        return card;
+    }
+
+    void drawCard() { // put one card from deck to hand
+        if (deck.size() <= 0) {
+            health--;
+            message = "No more cards in deck. BLEEDING OUT! HP-1! ";
+        } else {
+            Card cardDraw = takeRandomCard(deck);
+            if (hand.size() < MAX_CARDS_IN_HAND) {
+                hand.add(cardDraw);
+                message += "A card with a value of " + cardDraw.value + " drawn. ";
+            } else {
+                message += "A card with a value of " + cardDraw.value + " drawn. OVERLOAD! Card discarded. ";
+            }
+        }
+        message = deck.size() + " cards in deck. ";
+        message += hand.size() + " cards in hand.";
+        System.out.println(message);
     }
 
     int playCard(Card cardInUse) {
@@ -138,12 +121,26 @@ public class Player {
         return cardDamage;
     }
 
-    void deleteCardsUsed(){
-        for (int i = 0; i < handTemp.size(); i++) {
-                if(hand.contains(handTemp.get(i))){
-                    hand.remove(handTemp.get(i));   
-                } 
+    int playCardsLoop() {
+        int turnDamage = 0;
+        int cardDamage = 0;
+        if (mana == 0 || turnPassed || hand.size() == 0) {
+            if (turnPassed == true) {
+                message += " PASS";
+                System.out.println(message);
             }
+            turnPassed = true;
+        } else {
+            for (int i = 0; i < hand.size(); i++) {
+                Card cardInUse = hand.get(i);
+                // getLowestCostCard();
+                cardDamage = playCard(cardInUse);
+                turnDamage += cardDamage;
+            }
+        }
+        deleteCardsPlayed();
+        handTemp.clear();
+        return turnDamage;
     }
 
     public int getHealth() {
@@ -158,24 +155,12 @@ public class Player {
         return manaSlots;
     }
 
-    public String getCardsinHandValues() {
-        String values = "";
-        for (int index = 0; index < hand.size(); index++) {
-            values += String.valueOf(hand.get(index)) + ", ";
-        }
-        return values;
-    }
-
     public int getMana() {
         return mana;
     }
 
     public void setMana(int mana) {
         this.mana = mana;
-    }
-
-    public String getPlayCardMessage() {
-        return message;
     }
 
     public boolean getTurnPassed() {
