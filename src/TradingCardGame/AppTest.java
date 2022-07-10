@@ -1,3 +1,4 @@
+package TradingCardGame;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
@@ -29,7 +30,7 @@ public class AppTest {
         int actualManaSlots = player.getManaSlots();
 
         // assert
-        assertEquals(EXPECTED_MANASLOTS, actualManaSlots);   
+        assertEquals(EXPECTED_MANASLOTS, actualManaSlots);
     }
 
     @Test
@@ -41,7 +42,7 @@ public class AppTest {
 
         // act
         game.createPlayers();
-        int actualCardsInHand = game.player[0].getNumberOfCardsInHand();
+        int actualCardsInHand = game.player[0].hand.size();
 
         // assert
         assertEquals(EXPECTED_CARDS_IN_HAND, actualCardsInHand);
@@ -56,8 +57,8 @@ public class AppTest {
 
         // act
         game.createPlayers();
-        int actualCardsInHand = game.player[0].getNumberOfCardsInHand();
-        int actualCardsInHand2 = game.player[1].getNumberOfCardsInHand();
+        int actualCardsInHand = game.player[0].hand.size();
+        int actualCardsInHand2 = game.player[1].hand.size();
         boolean sameCardsInHand = actualCardsInHand == actualCardsInHand2;
 
         // assert
@@ -73,7 +74,7 @@ public class AppTest {
         // act
         game.createPlayers();
         game.player[0].drawCard();
-        int actualCardsInHand = game.player[0].getNumberOfCardsInHand();
+        int actualCardsInHand = game.player[0].hand.size();
 
         // assert
         assertEquals(EXPECTED_CARDS_IN_HAND, actualCardsInHand);
@@ -118,13 +119,14 @@ public class AppTest {
 
         // act
         game.createPlayers();
-        game.player[0].cards.clearHand();
-        game.player[0].cards.hand.add(0, 2);
-        game.player[0].cards.hand.add(1, 2);
-        game.player[0].cards.hand.add(2, 2);
-        game.player[0].setMana(6);
-        game.player[0].playCards();
-        int actualCardsInHand = game.player[0].getNumberOfCardsInHand();
+        game.player[0].clearHand();
+        game.player[0].hand.add(new Card(2));
+        game.player[0].hand.add(new Card(2));
+        game.player[0].hand.add(new Card(2));
+        game.player[0].setMana(6);  
+
+        game.player[0].playCardsLoop();
+        int actualCardsInHand = game.player[0].hand.size();
 
         // assert
         assertEquals(EXPECTED_CARDS_IN_HAND, actualCardsInHand);
@@ -139,11 +141,19 @@ public class AppTest {
 
         // act
         game.player[0] = new Player();
-        game.player[0].cards.hand.add(0, 2);
-        game.player[0].cards.hand.add(0, 2);
+        game.player[0].clearHand();
+        game.player[0].hand.add(new Card(2));
+        game.player[0].hand.add(new Card(2));
         game.player[0].setMana(4);
-
-        game.player[0].playCards();
+        
+        
+        Card cardInUse = game.player[0].getLowestCostCard();
+        game.player[0].playCard(cardInUse);
+        cardInUse = game.player[0].getLowestCostCard();
+        game.player[0].playCard(cardInUse);
+        
+        
+        game.player[0].playCardsLoop();
         actualMana = game.player[0].getMana();
 
         // assert
@@ -154,46 +164,51 @@ public class AppTest {
     @Test
     public void any_played_card_deals_damage_to_the_opponent_if_card_value_is_not_0_or_1() {
         // arrange
-        final int EXPECTED_OPP_HEALTH = 28;
+        final int DAMAGE = 4;
+        int actualDamage = 0;
         Game game = new Game();
 
         // act
         game.createPlayers();
-        game.player[0].cards.clearDeck();
-        game.player[0].cards.clearHand();
-        game.player[0].cards.hand.add(0, 2);
-        game.player[0].cards.hand.add(0, 2);
-        game.player[0].setMana(1);
+        game.player[0].clearDeck();
+        game.player[0].clearHand();
+        game.player[0].hand.add(new Card(2));
+        game.player[0].hand.add(new Card(2));
+        game.player[0].setManaSlots(4);
         game.player[1].setTurnPassed(true);
         game.manageRound();
-        int actualOppHealth = game.player[1].getHealth();
+        actualDamage = game.player[0].getDamage();
 
         // assert
-        assertEquals(EXPECTED_OPP_HEALTH, actualOppHealth);
+        assertEquals(DAMAGE, actualDamage);
 
     }
 
     @Test
     public void damage_dealt_and_mana_consumed_are_equal() {
         // arrange
-        final boolean EXPECTED_EQUAL = true;
+        final int MANA_COST = 2;
+        final int DAMAGE_DEALT = 2;
         Game game = new Game();
+        int mana = 0;
+        int actualMana = 0;
+        int actualDamage = 0;
 
         // act
-        game.player[0] = new Player();
-        game.player[1] = new Player();
-        int OppHealth = game.player[1].getHealth();
-        game.player[0].cards.hand.add(0, 2);
+        game.createPlayers();
+        game.player[0].clearDeck();
+        game.player[0].clearHand();
+        game.player[0].hand.add(new Card(2));
+        game.player[0].setManaSlots(2);
         game.player[0].setMana(2);
-        int mana = game.player[0].getMana();
+        mana = game.player[0].getMana();
         game.manageRound();
-        int actualDamage = OppHealth - game.player[1].getHealth();
-        int actualMana = mana - game.player[0].getMana();
-
-        boolean areEqual = actualDamage == actualMana;
+        actualDamage = game.player[0].getDamage();
+        actualMana = (game.player[0].getMana() - 1) + mana;
 
         // assert
-        assertEquals(EXPECTED_EQUAL, areEqual);
+        assertEquals(MANA_COST, actualMana);
+        assertEquals(DAMAGE_DEALT, actualDamage);
 
     }
 
@@ -213,20 +228,20 @@ public class AppTest {
         assertEquals(EXPECTED_WINNER, actualWinner);
     }
 
-    @Test 
-    public void opponent_player_becomes_active_if_active_player_passes_turn(){
+    @Test
+    public void opponent_player_becomes_active_if_active_player_passes_turn() {
         // arrange
         final Game game = new Game();
-        final int EXPECTED_ACTIVE_PLAYER = 1;
+        final String PASS_TURN_MESSAGE = "Player 1 passes the turn to player 0";
 
         // act
         game.createPlayers();
-        game.player[0].setTurnPassed(true);
-        game.manageRound();
-        int actualActivePlayer = 0;
+        game.player[1].setTurnPassed(true);
+        String actualMessage = game.manageRound();
+       // int actualActivePlayer = game.playerI;
 
         // assert
-        assertEquals(EXPECTED_ACTIVE_PLAYER, actualActivePlayer);
+        assertEquals(PASS_TURN_MESSAGE, actualMessage);
 
     }
 
@@ -238,8 +253,8 @@ public class AppTest {
 
         // act
         game.createPlayers();
-        game.player[0].cards.hand.clear();
-        game.player[0].cards.deck.clear();
+        game.player[0].hand.clear();
+        game.player[0].deck.clear();
         game.manageRound();
         boolean actualTurnPassed = game.player[0].getTurnPassed();
 
@@ -257,7 +272,7 @@ public class AppTest {
         game.createPlayers();
         game.player[0].setMana(0);
         game.player[0].setManaSlots(0);
-        game.player[0].playCards();
+        game.player[0].playCardsLoop();
         boolean actualTurnPassed = game.player[0].getTurnPassed();
 
         // assert
@@ -289,7 +304,7 @@ public class AppTest {
 
         // act
         game.createPlayers();
-        game.player[0].cards.clearDeck();
+        game.player[0].clearDeck();
         game.player[0].drawCard();
         int actualHealth = game.player[0].getHealth();
 
@@ -305,10 +320,10 @@ public class AppTest {
 
         // act
         game.createPlayers();
-        game.player[0].cards.hand.add(0, 2);
-        game.player[0].cards.hand.add(0, 2);
+        game.player[0].hand.add(new Card(2));
+        game.player[0].hand.add(new Card(2));
         game.player[0].drawCard();
-        int actualCardsInHand = game.player[0].getNumberOfCardsInHand();
+        int actualCardsInHand = game.player[0].hand.size();
 
         // assert
         assertEquals(EXPECTED_CARDS_IN_HAND, actualCardsInHand);
@@ -323,8 +338,8 @@ public class AppTest {
         // act
         game.createPlayers();
         game.player[0].setHealth(25);
-        game.player[0].cards.clearHand();
-        game.player[0].cards.hand.add(0, 1);
+        game.player[0].clearHand();
+        game.player[0].hand.add(new Card(1));
         game.manageRound();
         int actualHealth = game.player[0].getHealth();
 
@@ -336,13 +351,11 @@ public class AppTest {
     public void builds_an_individual_random_deck_of_20_from_40_cards() {
         // arrange
         final Game game = new Game();
-        final int EXPECTED_DECK = 20;
+        final int EXPECTED_DECK = 17;
 
         // act
         game.createPlayers();
-        game.player[0].cards.clearDeck();
-        game.player[0].cards.buildDeck();
-        int actualDeck = game.player[0].cards.deck.size();
+        int actualDeck = game.player[0].deck.size();
 
         // assert
         assertEquals(EXPECTED_DECK, actualDeck);
@@ -351,7 +364,7 @@ public class AppTest {
     @Test
     public void can_be_obtained_an_entire_gameplay_with_computer_players() {
         // arrange
-        final String EXPECTED_MESSAGE = "PC vs PC game has succssessfully finished";
+        final String EXPECTED_MESSAGE = "PC vs PC game has succsessfully finished";
         Game game = new Game();
 
         // act
