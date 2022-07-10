@@ -20,7 +20,7 @@ public class Player {
         fillDeck();
         fillHand();
     }
- 
+
     void fillDeck() {
         for (int i = 0; i < maxDeckCards; i++) {
             deck.add(new Card());
@@ -28,13 +28,11 @@ public class Player {
     }
 
     void sortHand(List<Card> hand) {
+
     }
 
-    void clearDeck() {
+    void clearCards() {
         deck.clear();
-    }
-
-    void clearHand() {
         hand.clear();
     }
 
@@ -71,7 +69,7 @@ public class Player {
         return hand.get(0);
     }
 
-    void deleteCardsPlayed() {
+    void discardPlayedCards() {
         for (int i = 0; i < handTemp.size(); i++) {
             if (hand.contains(handTemp.get(i))) {
                 hand.remove(handTemp.get(i));
@@ -79,7 +77,7 @@ public class Player {
         }
     }
 
-    Card takeRandomCard(List<Card> cards) {
+    Card pickRandomCard(List<Card> cards) {
         int randomIndex = (int) Math.floor(Math.random() * (cards.size()));
         Card card = cards.get(randomIndex);
         cards.remove(randomIndex);
@@ -87,16 +85,18 @@ public class Player {
     }
 
     void drawCard() { // put one card from deck to hand
+        int value = 0;
         if (deck.size() <= 0) {
             health--;
             message = "No more cards in deck. BLEEDING OUT! HP-1! ";
         } else {
-            Card cardDraw = takeRandomCard(deck);
+            Card cardDraw = pickRandomCard(deck);
+            value = cardDraw.getManaCost();
             if (hand.size() < MAX_CARDS_IN_HAND) {
                 hand.add(cardDraw);
-                message += "A card with a value of " + cardDraw.value + " drawn. ";
+                message += "A card with a value of " + value + " drawn. ";
             } else {
-                message += "A card with a value of " + cardDraw.value + " drawn. OVERLOAD! Card discarded. ";
+                message += "A card with a value of " + value + " drawn. OVERLOAD! Card discarded. ";
             }
         }
         message = deck.size() + " cards in deck. ";
@@ -105,15 +105,17 @@ public class Player {
     }
 
     int playCard(Card cardInUse) {
+        int manaCost = cardInUse.getManaCost();
         int cardDamage = 0;
-        if (mana >= cardInUse.value) {
-            message = "Plays a card with a value of " + cardInUse.value;
-            mana -= cardInUse.value;
-            if (cardInUse.value == 1) {
+        if (mana >= manaCost) {
+            mana -= manaCost;
+            if (manaCost == 1) {
                 health += cardInUse.HEALING_CARD_VALUE;
-                message += " HEALING CARD!";
+                message = " Plays a HEALING CARD!";
+                
             } else {
-                cardDamage = cardInUse.value;
+                cardDamage = cardInUse.getDamage();
+                message = "Plays a card with a value of " + cardDamage;
             }
             handTemp.add(cardInUse);
             System.out.println(message);
@@ -133,12 +135,12 @@ public class Player {
         } else {
             for (int i = 0; i < hand.size(); i++) {
                 Card cardInUse = hand.get(i);
-                // getLowestCostCard();
+                //getLowestCostCard();
                 cardDamage = playCard(cardInUse);
                 turnDamage += cardDamage;
             }
         }
-        deleteCardsPlayed();
+        discardPlayedCards();
         handTemp.clear();
         return turnDamage;
     }

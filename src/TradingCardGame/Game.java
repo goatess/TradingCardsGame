@@ -27,8 +27,8 @@ public class Game {
         }
     }
 
-    String manageRound(){
-        int damage = 0;
+    String manageRound() {
+        int turnDamage = 0;
         int playerI = 0;
         Player opponent = player[1];
         boolean turnPassed = false;
@@ -40,25 +40,25 @@ public class Game {
 
             opponent = player[Math.abs(playerI - 1)];
             int opponentI = Math.abs(playerI - 1);
-            damage = player[playerI].playerTurn();
+            turnDamage = player[playerI].playerTurn();
             turnPassed = player[playerI].getTurnPassed();
 
             if (turnPassed) {
                 message = "Player " + playerI + " passes the turn to player " + opponentI;
             } else {
                 oppOldHealth = opponent.getHealth();
-                oppHealth =  oppOldHealth - damage;
+                oppHealth = oppOldHealth - turnDamage;
                 opponent.setHealth(oppHealth);
                 if (oppHealth < 1) {
                     oppHealth = 0;
                     gameContinues = false;
                     message = "Player " + opponentI + " health drops to 0! Player " + playerI
-                            + " WINS!!!";
+                            + " WINS!!!\n";
                     winner = playerI;
                     System.out.println(message);
                     break;
                 } else {
-                    message = "Player " + opponentI + " gets damaged with " + damage
+                    message = "Player " + opponentI + " gets damaged with " + turnDamage
                             + " points: Health drops from "
                             + oppOldHealth + " to " + oppHealth;
                 }

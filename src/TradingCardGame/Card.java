@@ -1,40 +1,45 @@
 package TradingCardGame;
 
 public class Card {
-    public int value = -1;
-    int[] selected = new int[40];
-    final int[] catalog = { 0, 0, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 6, 6, 7, 8, 0, 0, 1, 1, 2, 2, 2, 3, 3, 3, 3,
-            4, 4, 4, 5, 5, 6, 6, 7, 8 };
     final int HEALING_CARD_VALUE = 5;
-    public int damage = value;
-
-    // Damage independent from Mana cost
-    int[] cardsDamage = { 0, 0, 0, 1, 2, 2, 3, 3, 4, 4, 5, 6, 6, 7, 8, 9, 10, 10,
+    public int manaCost = -1;
+    public int damage = manaCost;
+    final int[] MANACOST_CATALOG = { 0, 0, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 6, 6, 7, 8, 0, 0, 1, 1, 2, 2, 2, 3,
+            3, 3, 3,
+            4, 4, 4, 5, 5, 6, 6, 7, 8 };
+    final int[] DAMAGE_CATALOG = { 0, 0, 0, 1, 2, 2, 3, 3, 4, 4, 5, 6, 6, 7, 8, 9, 10, 10,
             11, 12, 0, 0, 0, 1, 2, 2, 3, 3, 4, 4, 5, 6, 6, 7, 8, 9, 10, 10, 11, 12 };
+    int[] selected = new int[40];
 
-    public Card() {
-        selectCard();
+    public Card() { // Default Constructor - calls to the random card picker
+        selectRandomCard();
     }
 
-    private void selectCard() {
-        int randomIndex = (int) Math.floor(Math.random() * (catalog.length));
-        if (catalog[randomIndex] != -1) {
-            value = catalog[randomIndex];
-            catalog[randomIndex] = -1;
+    public Card(int manaCost, int damage) { // manual card picker - Constructor for testing purposes
+        this.manaCost = manaCost;
+        this.damage = damage;
+    }
+
+    private int selectRandomCard() { // random card picker
+        int randomIndex = (int) Math.floor(Math.random() * (MANACOST_CATALOG.length));
+        if (MANACOST_CATALOG[randomIndex] != -1) {
+            manaCost = MANACOST_CATALOG[randomIndex];
+            damage = DAMAGE_CATALOG[randomIndex];
+            MANACOST_CATALOG[randomIndex] = -1;
         } else
-            selectCard();
+            selectRandomCard();
+        return randomIndex;
     }
 
-    public Card(int value) {
-        this.value = value;
+    public int getManaCost() {
+        return this.manaCost;
     }
 
-    public void setValue() {
-        int randomIndex = (int) Math.floor(Math.random() * (catalog.length));
-        this.value = catalog[randomIndex];
+    public int getDamage() {
+        return damage;
     }
 
-    public int getValue() {
-        return this.value;
+    public int getHEALING_CARD_VALUE() {
+        return HEALING_CARD_VALUE;
     }
 }
