@@ -30,38 +30,39 @@ public class Game {
     int damage = 0;
     int playerI = 0;
 
-    String manageRound() {
+    String manageRound(){
         Player opponent = player[1];
         boolean turnPassed = false;
-        int opponentHealth = 0;
-        int opponentNewHealth = 0;
+        int oppOldHealth = 0;
+        int oppHealth = 0;
         for (playerI = 0; playerI < numberOfPlayers; playerI++) {
             message = "Player's " + playerI + " turn. ";
             System.out.println(message);
 
             opponent = player[Math.abs(playerI - 1)];
+            int opponentI = Math.abs(playerI - 1);
             damage = player[playerI].playerTurn();
             turnPassed = player[playerI].getTurnPassed();
 
             if (turnPassed) {
-                message = "Player " + playerI + " passes the turn to player " + (Math.abs(playerI - 1));
+                message = "Player " + playerI + " passes the turn to player " + opponentI;
             } else {
 
-                opponentNewHealth = opponent.getHealth() - damage;
-                opponent.setHealth(opponentNewHealth);
+                oppHealth = opponent.getHealth() - damage;
+                opponent.setHealth(oppHealth);
 
-                if (opponentNewHealth < 1) {
-                    opponentNewHealth = 0;
+                if (oppHealth < 1) {
+                    oppHealth = 0;
                     gameContinues = false;
-                    message = "Player " + (Math.abs(playerI - 1)) + " health drops to 0! Player " + playerI
+                    message = "Player " + opponentI + " health drops to 0! Player " + playerI
                             + " WINS!!!";
                     winner = playerI;
                     System.out.println(message);
                     break;
                 } else {
-                    message = "Player " + (Math.abs(playerI - 1)) + " gets damaged with " + damage
+                    message = "Player " + opponentI + " gets damaged with " + damage
                             + " points: Health drops from "
-                            + opponentHealth + " to " + opponentNewHealth;
+                            + oppOldHealth + " to " + oppHealth;
                 }
             }
             System.out.println(message);

@@ -12,21 +12,21 @@ public class Card {
     // 11, 12, 0, 0, 0, 1, 2, 2, 3, 3, 4, 4,
     // 5, 6, 6, 7, 8, 9, 10, 10, 11, 12 };
 
-    Card() {
+    public Card() {
         int randomIndex = (int) Math.floor(Math.random() * (catalog.length));
         value = catalog[randomIndex];
     }
 
-    Card(int value) {
+    public Card(int value) {
         this.value = value;
     }
 
-    void setValue() {
+    public void setValue() {
         int randomIndex = (int) Math.floor(Math.random() * (catalog.length));
         this.value = catalog[randomIndex];   
         }
     
-    int getValue() {
+    public int getValue() {
         return this.value;
     }
 }

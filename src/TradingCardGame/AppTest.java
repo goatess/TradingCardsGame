@@ -115,6 +115,7 @@ public class AppTest {
     public void active_player_can_play_as_many_cards_as_he_can_afford() {
         // arrange
         final int EXPECTED_CARDS_IN_HAND = 0;
+        int actualCardsInHand = 0;
         Game game = new Game();
 
         // act
@@ -123,10 +124,11 @@ public class AppTest {
         game.player[0].hand.add(new Card(2));
         game.player[0].hand.add(new Card(2));
         game.player[0].hand.add(new Card(2));
-        game.player[0].setMana(6);  
+        game.player[0].setManaSlots(6);  
+        game.player[0].setMana(6);
+        game.player[0].playCardsLoop();      
 
-        game.player[0].playCardsLoop();
-        int actualCardsInHand = game.player[0].hand.size();
+        actualCardsInHand = game.player[0].hand.size();
 
         // assert
         assertEquals(EXPECTED_CARDS_IN_HAND, actualCardsInHand);
@@ -145,14 +147,6 @@ public class AppTest {
         game.player[0].hand.add(new Card(2));
         game.player[0].hand.add(new Card(2));
         game.player[0].setMana(4);
-        
-        
-        Card cardInUse = game.player[0].getLowestCostCard();
-        game.player[0].playCard(cardInUse);
-        cardInUse = game.player[0].getLowestCostCard();
-        game.player[0].playCard(cardInUse);
-        
-        
         game.player[0].playCardsLoop();
         actualMana = game.player[0].getMana();
 
