@@ -446,9 +446,7 @@ public class AppTest {
         //act
         game.createPlayers();
         game.player[0].clearCards();
-        game.player[0].hand.add(new Card (8,0));
         game.player[0].hand.add(new Card (1,0));
-        game.player[0].hand.add(new Card (6,0));
         game.player[0].hand.add(new Card (0,0));
         Card selectedCard = game.player[0].getHealingCard();
         actualCostOfSelectedCard = selectedCard.getManaCost();
@@ -459,7 +457,7 @@ public class AppTest {
 
     @Test
     public void simpleAI_selects_healing_card_when_health_below_26(){
-         //arrange
+        //arrange
         final int HEALING_CARD_COST = 1;
         int actualCostOfSelectedCard = 0;
         Game game = new Game();
@@ -470,16 +468,37 @@ public class AppTest {
         game.player[0].setHealth(25);
         game.player[0].hand.add(new Card (1,0));
         game.player[0].hand.add(new Card (0,0));
-        Card selectedCard = game.player[0].sortHand(true);
+        Card selectedCard = game.player[0].sortHandAI(true);
         actualCostOfSelectedCard = selectedCard.getManaCost();
 
         //assert
         assertEquals(HEALING_CARD_COST, actualCostOfSelectedCard);
     }
 
+
     @Test
-    public void simpleAI_selects_lowest_cost_card_when_hand__is_equal_or_above_3_cards(){
-         //arrange
+    public void simpleAI_keeps_with_selection_when_healing_card_not_available(){
+        //arrange
+        final int CARD_COST = 5;
+        int actualCostOfSelectedCard = 0;
+        Game game = new Game();
+
+        //act
+        game.createPlayers();
+        game.player[0].clearCards();
+        game.player[0].setHealth(5);
+        game.player[0].hand.add(new Card (5,0));
+        game.player[0].hand.add(new Card (0,0));
+        Card selectedCard = game.player[0].sortHandAI(true);
+        actualCostOfSelectedCard = selectedCard.getManaCost();
+
+        //assert
+        assertEquals(CARD_COST, actualCostOfSelectedCard);
+    }
+
+    @Test
+    public void simpleAI_selects_lowest_cost_card_when_hand_is_equal_or_above_4_cards(){
+        //arrange
         final int LOWEST_COST = 0;
         int actualLowestCost = 10;
         Game game = new Game();
@@ -488,9 +507,10 @@ public class AppTest {
         game.createPlayers();
         game.player[0].clearCards();
         game.player[0].hand.add(new Card (8,0));
+        game.player[0].hand.add(new Card (5,0));
         game.player[0].hand.add(new Card (1,0));
         game.player[0].hand.add(new Card (0,0));
-        Card selectedCard = game.player[0].sortHand(true);
+        Card selectedCard = game.player[0].sortHandAI(true);
         actualLowestCost = selectedCard.getManaCost();
 
         //assert
@@ -498,8 +518,8 @@ public class AppTest {
     }
 
     @Test
-    public void simpleAI_selects_lowest_cost_card_when_hand__is_below_3_cards(){
-         //arrange
+    public void simpleAI_selects_lowest_cost_card_when_hand_is_below_3_cards(){
+        //arrange
         final int HIGHEST_COST = 8;
         int actualHighestCost = 0;
         Game game = new Game();
@@ -509,11 +529,10 @@ public class AppTest {
         game.player[0].clearCards();
         game.player[0].hand.add(new Card (8,0));
         game.player[0].hand.add(new Card (0,0));
-        Card selectedCard = game.player[0].sortHand(true);
+        Card selectedCard = game.player[0].sortHandAI(true);
         actualHighestCost = selectedCard.getManaCost();
 
         //assert
         assertEquals(HIGHEST_COST, actualHighestCost);
     }
-
 }

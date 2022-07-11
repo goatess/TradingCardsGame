@@ -3,7 +3,7 @@ package TradingCardGame;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Player {
+public class PlayerAI {
     final int MAX_CARDS_IN_HAND = 5;
     int health = 30;
     int mana = 0;
@@ -17,7 +17,7 @@ public class Player {
     List<Card> hand = new ArrayList<>();
     List<Card> handTemp = new ArrayList<>();
 
-    Player() {
+    PlayerAI() {
         fillDeck();
         fillHand();
     }
