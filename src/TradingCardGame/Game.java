@@ -2,24 +2,16 @@ package TradingCardGame;
 
 public class Game {
     int numberOfPlayers = 2;
+    Player[] player = new Player[numberOfPlayers];
     int winner = -1;
     boolean gameContinues = true;
-    String message = "";
-
-    Player[] player = new Player[numberOfPlayers];
-
+    int roundNumber = 1; 
+    
     String startPCvsPCGame() {
         createPlayers();
         gameLoop();
-        String message = "PC vs PC game has succsessfully finished\n";
-        System.out.println(message);
+        String message = finishMessage();
         return message;
-    }
-
-    public void gameLoop() {  // as in a tennis match: turn < round < game
-        while (gameContinues) {
-            roundLoop();
-        }
     }
 
     void createPlayers() {
@@ -28,42 +20,85 @@ public class Game {
         }
     }
 
-    String roundLoop() {
-        int turnDamage = 0;
-        boolean turnPassed = false;
-        int oppHealth = 30;
-        int oppId = 1;
-        
-        System.out.println("\nROUND STARTS");
-        for (int id = 0; id < numberOfPlayers; id++){
-            System.out.println("\nPlayer's " + id + " turn. ");
+    public void gameLoop() { // as in a tennis match: turn < round < game
+        while (gameContinues) {
+            roundLoop();
+        }
+    }
 
-            Player opponent = player[oppId];
-            Player activePlayer = player[id];
-            oppId = Math.abs(id-1);
+    String roundLoop() {
+        int damage = 0;
+        boolean turnPassed = false;
+        int opponentHealth = 30;
+        int opponent = 1;
+        String message = "";
+
+        roundMessage();
+        for (int active = 0; active < numberOfPlayers; active++) {
+            opponent = Math.abs(active - 1);
+            Player opponentPlayer = player[opponent];
+            Player activePlayer = player[active];
             
-            turnDamage = activePlayer.playerTurn();
+            playerTurnMessage(active);
+            damage = activePlayer.playerTurn();
             turnPassed = activePlayer.getTurnPassed();
-            oppHealth = (opponent.getHealth() - turnDamage);
-          
+            opponentHealth = (opponentPlayer.getHealth() - damage);
+
             if (turnPassed) {
-                message = "Player " + id + " passes the turn to player " + oppId;
+                message = passTurnMessage(active, opponent);
             } else {
-                if (oppHealth < 1) {  
-                    opponent.setHealth(oppHealth = 0);
+                if (opponentHealth < 1) {
+                    opponentPlayer.setHealth(opponentHealth = 0);
                     gameContinues = false;
-                    winner = id;
-                    System.out.println("Player " + oppId + " health drops to 0! Player " + id + " WINS!!!\n");
+                    winner = active;
+                    message = winnerMessage(winner, opponent);
                     break;
-                } else if (turnDamage > 0){      
-                    opponent.setHealth(oppHealth);
-                    message = "Player " + oppId + " gets damaged with " + turnDamage + " points: Health drops to " + oppHealth;
+                } else if (damage > 0) {
+                    opponentPlayer.setHealth(opponentHealth);
+                    message = turnDamageMessage(opponent, opponentHealth, damage);
                 }
             }
-            System.out.println(message);
         }
         return message;
     }
+
+    // MESSAGES
+    
+    void roundMessage() {
+        roundNumber++;
+        System.out.println("\nROUND " + roundNumber);
+    }
+
+    void playerTurnMessage(int active) {
+        System.out.println("\nPlayer's " + active + " turn. ");
+    }
+
+    String passTurnMessage(int active, int opponent) {
+        String message = "Player " + active + " passes the turn to player " + opponent;
+        System.out.println(message);
+        return message;
+    }
+
+    String winnerMessage(int winner, int opponent) {
+        String message = "Player " + opponent + " health drops to 0! Player " + winner + " WINS!!!\n";
+        System.out.println(message);
+        return message;
+    }
+
+    String turnDamageMessage(int opponent, int opponentHP, int damage) {
+        String message = "Player " + opponent + " gets damaged with " + damage + " points: Health drops to "
+                + opponentHP;
+        System.out.println(message);
+        return message;
+    }
+
+    String finishMessage(){
+        String message = "PC vs PC game has succsessfully finished\n";
+        System.out.println(message);
+        return message;
+    }
+
+    // GETTERS AND SETTERS
 
     public int getWinner() {
         return winner;
@@ -72,6 +107,7 @@ public class Game {
     public void setNumberOfPlayers(int numberOfPlayers) {
         this.numberOfPlayers = numberOfPlayers;
     }
+
     public int getNumberOfPlayers() {
         return numberOfPlayers;
     }
